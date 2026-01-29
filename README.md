@@ -8,7 +8,6 @@ Shared documentation for AI-assisted development with Claude Code. These are not
 | Document | Description |
 |----------|-------------|
 | [windows/msvc_claude_code.md](windows/msvc_claude_code.md) | MSVC toolchain with Claude Code - auto-detection, Git Bash quirks |
-| [windows/wsl_development.md](windows/wsl_development.md) | WSL2 development patterns, file system interop |
 | [windows/terminal_quirks.md](windows/terminal_quirks.md) | Git Bash, PowerShell, cmd differences |
 
 ## Usage
