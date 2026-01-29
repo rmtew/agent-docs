@@ -1,8 +1,15 @@
 # Agent Development Documentation
 
-Shared documentation for AI-assisted development with Claude Code. These are notes from actual problems encountered and solved - not generic references.
+Shared documentation for AI-assisted development with Claude Code. Contains:
+- Session conventions and workflow patterns
+- Platform-specific notes from actual problems encountered
 
 ## Contents
+
+### Workflows
+| Document | Description |
+|----------|-------------|
+| [workflows/session_conventions.md](workflows/session_conventions.md) | Session workflow, journal/backlog maintenance, autonomy rules |
 
 ### Windows Development
 | Document | Description |
@@ -15,7 +22,7 @@ Shared documentation for AI-assisted development with Claude Code. These are not
 Reference these docs from your project's CLAUDE.md:
 
 ```markdown
-## References
+## Session Conventions
 
-For Windows MSVC setup, see [agent-docs/windows/msvc_claude_code.md](agent-docs/windows/msvc_claude_code.md)
+Follow [agent-docs/workflows/session_conventions.md](agent-docs/workflows/session_conventions.md).
 ```
