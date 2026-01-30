@@ -85,13 +85,21 @@ cl /W4 /O2 myfile.c /Fe:myfile.exe
 
 ## Invoking Build Scripts from Git Bash
 
-```bash
-# Use cmd //c with single quotes around the path
-cmd //c 'C:\path\to\build.bat'
+Run `.bat` files directly with forward slashes. Git Bash automatically delegates them to `cmd.exe` — do **not** add `cmd /c` or `powershell` wrappers, which break output capture.
 
-# Or with the path in Git Bash format
-cmd //c '/c/path/to/build.bat'
+```bash
+# Correct — direct invocation
+tools/build.bat
+tools/build.bat debug
+
+# WRONG — all of these break output capture or fail entirely
+cmd /c tools/build.bat          # output lost
+cmd //c tools/build.bat         # 'tools' not recognized
+powershell -Command "& ..."     # unnecessary layers
+tools\build.bat                 # backslash eaten by bash
 ```
+
+See [terminal_quirks.md](terminal_quirks.md) for details on path conversion and slash-prefixed arguments.
 
 ## Common MSVC Warnings
 
@@ -145,9 +153,10 @@ For direct nmake/cl usage:
 ### Build script works in cmd but fails from Git Bash
 
 Check for:
-- Paths with spaces not properly quoted
-- Forward slash flags that need `//` escaping (see [terminal_quirks.md](terminal_quirks.md))
-- `>nul` that should be `>/dev/null` (only in Git Bash commands, not in .bat files)
+- **Backslashes in the path**: Use `tools/build.bat`, not `tools\build.bat` — backslash is an escape character in bash
+- **Using `cmd /c` wrapper**: Remove it — run the `.bat` file directly. `cmd /c` breaks output capture from Git Bash
+- **Paths with spaces not properly quoted**: Use double quotes around the path
+- **`>nul` in Git Bash commands**: Use `>/dev/null` instead (inside `.bat` files, `>nul` is correct since they run in cmd.exe)
 
 ### vcvarsall.bat returns error but environment seems configured
 

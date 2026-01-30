@@ -6,21 +6,35 @@ Differences between Git Bash, PowerShell, and cmd.exe that affect Claude Code an
 
 Claude Code uses Git Bash internally as its shell on Windows. This provides Unix-like commands but introduces some quirks when interacting with Windows tools.
 
-### Forward Slash Escaping
+### MSYS Path Conversion on `/`-Prefixed Arguments
 
-Git Bash interprets `/` as a path prefix and attempts to convert it. To pass literal flags to Windows tools, use `//`:
+Git Bash (MSYS) converts arguments starting with `/` into Windows paths. This mangles Windows-style flags like `/f`, `/W4`, `/nologo` when calling Windows executables directly.
+
+**Conversion rules** (tested):
+
+| Argument | Converted to | Why |
+|----------|-------------|-----|
+| `/f`, `/c`, `/R` | `F:/`, `C:/`, `R:/` | Single letter → drive letter path |
+| `/W4`, `/Od`, `/MP` | `C:/Program Files/Git/...` | Multi-char → Git install path |
+| `/nologo`, `/link`, `/DEBUG` | `C:/Program Files/Git/...` | Same — word after `/` |
+| `/D_CRT_SECURE_NO_WARNINGS` | `C:/Program Files/Git/...` | Same — any length |
+| `/I.`, `/Isrc` | `C:/Program Files/Git/...` | Same |
+| `/?` | `/?` | **Not converted** — special exception |
+| `/std:c11`, `/Fe:bin/out.exe` | `/std:c11`, `/Fe:bin/out.exe` | **Not converted** — colon breaks the path pattern |
+
+**Fixes** — use either:
 
 ```bash
-# Wrong - Git Bash converts /f to a path like C:/Program Files/Git/f
-nmake /f Makefile.win
-
-# Correct - passes literal /f to nmake
+# Fix 1: double slash — strips one /, passes the rest literally
 nmake //f Makefile.win
-
-# Same applies to other flags
 cl //W4 //O2 file.c
 findstr //R //C:"pattern" file.txt
+
+# Fix 2: MSYS_NO_PATHCONV=1 — disables conversion for the command
+MSYS_NO_PATHCONV=1 nmake /f Makefile.win
 ```
+
+**Why `.bat` wrappers avoid this problem entirely**: `.bat` files run inside `cmd.exe`, where MSYS conversion does not apply. A build script like `tools/build.bat debug` passes through Git Bash without mangling because Git Bash delegates the `.bat` to `cmd.exe`, and all the `/W4`, `/Od`, `/link` flags exist inside the `.bat` file where `cmd.exe` handles them natively. This is why the project uses `.bat` wrappers for MSVC builds rather than calling `cl` or `nmake` directly.
 
 ### Null Device
 
@@ -44,22 +58,42 @@ Git Bash automatically converts paths in many contexts:
 # These are equivalent in Git Bash:
 /c/Users/name/file.txt
 C:/Users/name/file.txt
-
-# But Windows tools may need backslashes:
-cmd //c 'C:\Users\name\file.txt'
 ```
+
+Note: backslashes in unquoted strings are escape characters in bash (`\b` becomes a backspace, `\t` a tab, etc.). Use forward slashes for paths. If a Windows tool requires backslashes, pass them inside quotes: `"src\main.c"`.
 
 ### Invoking Batch Files
 
+Git Bash automatically delegates `.bat` files to `cmd.exe`. Run them directly — do **not** wrap in `cmd /c` or `powershell`.
+
 ```bash
-# Use cmd //c with the batch file path
-cmd //c 'C:\path\to\script.bat'
+# Correct — direct invocation with forward slashes
+tools/build.bat
+tools/build.bat debug
 
-# With arguments
-cmd //c 'C:\path\to\build.bat arg1 arg2'
+# Also works — absolute paths (both styles)
+/c/path/to/build.bat
+"C:/path/to/build.bat"
 
-# If the path has spaces, quotes are essential
-cmd //c 'C:\Program Files\tool\run.bat'
+# WRONG — backslash is an escape character in bash
+tools\build.bat           # bash sees "toolsbuild.bat"
+
+# WRONG — cmd /c loses output capture
+cmd /c tools/build.bat    # runs but output not captured by Git Bash
+cmd //c tools/build.bat   # fails: 'tools' is not recognized
+
+# WRONG — unnecessary escalation
+powershell -Command "& cmd.exe /c ..."   # never do this
+```
+
+**Arguments with `/` prefixes get mangled** by MSYS path conversion (e.g. `/f` becomes `F:/`, `/W4` becomes `C:/Program Files/Git/W4`). This does not affect build scripts where arguments are plain words like `debug` or `test`. If you do need to pass slash-prefixed flags, use `MSYS_NO_PATHCONV=1`:
+
+```bash
+# Slash argument gets mangled
+tools/test.bat /f Makefile    # /f becomes F:/
+
+# Fix: suppress path conversion
+MSYS_NO_PATHCONV=1 tools/test.bat /f Makefile    # /f passed correctly
 ```
 
 ### Environment Variables
