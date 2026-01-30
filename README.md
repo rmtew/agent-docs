@@ -10,6 +10,8 @@ Shared documentation for AI-assisted development with Claude Code. Contains:
 | Document | Description |
 |----------|-------------|
 | [workflows/session_conventions.md](workflows/session_conventions.md) | Session workflow, journal/backlog maintenance, autonomy rules |
+| [workflows/worktree_conventions.md](workflows/worktree_conventions.md) | Git worktree lifecycle, TASK.md format, build context |
+| [workflows/worktree_command_template.md](workflows/worktree_command_template.md) | Template slash command -- copy to `.claude/commands/worktree.md` and customize |
 
 ### Windows Development
 | Document | Description |
