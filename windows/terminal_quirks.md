@@ -50,9 +50,9 @@ some_command >/dev/null 2>&1
 
 **Note:** Inside `.bat` files (which run in cmd.exe), use `>nul`. The `/dev/null` form is only for commands typed directly in Git Bash.
 
-### Path Conversion
+### Paths and Backslashes
 
-Git Bash automatically converts paths in many contexts:
+Git Bash converts Unix-style paths automatically:
 
 ```bash
 # These are equivalent in Git Bash:
@@ -60,7 +60,7 @@ Git Bash automatically converts paths in many contexts:
 C:/Users/name/file.txt
 ```
 
-Note: backslashes in unquoted strings are escape characters in bash (`\b` becomes a backspace, `\t` a tab, etc.). Use forward slashes for paths. If a Windows tool requires backslashes, pass them inside quotes: `"src\main.c"`.
+**Always use forward slashes** for paths in Git Bash. Backslashes in unquoted strings are escape characters (`\b` → backspace, `\t` → tab, `\n` → newline). If a Windows tool requires backslashes, pass them inside quotes: `"src\main.c"`.
 
 ### Invoking Batch Files
 
@@ -86,15 +86,7 @@ cmd //c tools/build.bat   # fails: 'tools' is not recognized
 powershell -Command "& cmd.exe /c ..."   # never do this
 ```
 
-**Arguments with `/` prefixes get mangled** by MSYS path conversion (e.g. `/f` becomes `F:/`, `/W4` becomes `C:/Program Files/Git/W4`). This does not affect build scripts where arguments are plain words like `debug` or `test`. If you do need to pass slash-prefixed flags, use `MSYS_NO_PATHCONV=1`:
-
-```bash
-# Slash argument gets mangled
-tools/test.bat /f Makefile    # /f becomes F:/
-
-# Fix: suppress path conversion
-MSYS_NO_PATHCONV=1 tools/test.bat /f Makefile    # /f passed correctly
-```
+Plain word arguments (`debug`, `test`, `clean`) pass through without issues. Slash-prefixed arguments are subject to the same MSYS path conversion described above — use `MSYS_NO_PATHCONV=1` if needed.
 
 ### Environment Variables
 
