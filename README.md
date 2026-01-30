@@ -13,6 +13,11 @@ Shared documentation for AI-assisted development with Claude Code. Contains:
 | [workflows/worktree_conventions.md](workflows/worktree_conventions.md) | Git worktree lifecycle, TASK.md format, build context |
 | [workflows/worktree_command_template.md](workflows/worktree_command_template.md) | Template slash command -- copy to `.claude/commands/worktree.md` and customize |
 
+### Build
+| Document | Description |
+|----------|-------------|
+| [build/shared_deps.md](build/shared_deps.md) | Shared external dependencies (DEPS_ROOT, deps/ layout) |
+
 ### Windows Development
 | Document | Description |
 |----------|-------------|
