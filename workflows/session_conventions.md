@@ -13,7 +13,28 @@ Projects using these conventions maintain:
 | `BACKLOG.md` | Workarounds, deferred work, ideas for future |
 | `docs/research/` | Deep dives, specs, implementation notes |
 
-Subprojects in `docs/research/[topic]/` can have their own README.md, JOURNAL.md, and BACKLOG.md.
+## Research Sub-Projects
+
+Sub-projects are directories with their own README, journal, and backlog. The primary location is `docs/research/[topic]/` but the pattern applies wherever a sub-project is created.
+
+**Required files:**
+
+- `README.md` -- problem statement, approach, architecture, how to build/run (if applicable), file inventory
+- `JOURNAL.md` -- dated session logs (same format as root journal)
+- `BACKLOG.md` -- phased roadmap, deferred work, ideas
+
+**Optional (when the sub-project includes runnable code):**
+
+- `src/` -- prototype source files
+- Build scripts (`build.bat`, `Makefile`) at the sub-project root
+
+Documentation-only sub-projects (e.g., dataset schema research) can use multiple topic `.md` files instead of or alongside the standard three.
+
+**Integration steps when creating a new sub-project:**
+
+1. Add an entry to the design references table in `CLAUDE.md`
+2. Add a section in root `BACKLOG.md` referencing the sub-project's backlog
+3. If the sub-project leads to mainline implementation, create a corresponding `docs/design/[topic].md`
 
 ## Session Workflow
 
