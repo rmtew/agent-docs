@@ -88,6 +88,24 @@ powershell -Command "& cmd.exe /c ..."   # never do this
 
 Plain word arguments (`debug`, `test`, `clean`) pass through without issues. Slash-prefixed arguments are subject to the same MSYS path conversion described above — use `MSYS_NO_PATHCONV=1` if needed.
 
+### stderr from Child Processes in Batch Files
+
+When Git Bash runs a `.bat` file, stderr from child processes (compilers, tools) inside the batch file may not be captured by Git Bash's `2>&1` redirection. This makes error messages invisible when piping or capturing output.
+
+**Symptom:** A build fails with `[target] FAILED` but no compiler error messages appear, even with `2>&1` on the Git Bash command line.
+
+**Fix:** Redirect stderr to stdout on the child process invocations **inside the `.bat` file**:
+
+```cmd
+REM Wrong — stderr from jai.exe may not reach Git Bash
+%JAI% src/main.jai
+
+REM Correct — merge stderr at the cmd.exe level
+%JAI% src/main.jai 2>&1
+```
+
+The `2>&1` inside the `.bat` file merges stderr within `cmd.exe`'s context, so Git Bash receives everything on stdout. Adding `2>&1` on the Git Bash command line only redirects the outer `cmd.exe` process's stderr, not the stderr of child processes launched inside the batch file.
+
 ### Environment Variables
 
 Git Bash uses Unix-style environment variable syntax:
