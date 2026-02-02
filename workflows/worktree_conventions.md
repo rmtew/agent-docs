@@ -22,23 +22,41 @@ Each worktree is a full git checkout created via `git worktree add`. Add `worktr
 
 ## TASK.md Format
 
-Every worktree has a `TASK.md` at its root describing the work:
+Every worktree has a `TASK.md` at its root. **This is the primary context source for Claude instances working in the worktree.** It must be self-contained -- the instance should be able to start working from TASK.md alone without exploring the codebase to discover what to do.
 
 ```markdown
 # <description>
 Branch: feature/<slug>
 Created: <YYYY-MM-DD>
 Source: <backlog item, issue, or user request>
+Mode: <autonomous | semi-autonomous | user-driven>
 
 ## Goal
-<what this worktree is for>
+<what this worktree is for -- concrete, specific>
+
+## Spec
+<detailed implementation requirements, not just a summary>
+<include: what to build, how it should work, key decisions already made>
+<include: input/output formats, UI behavior, algorithm choices>
+
+## Reference Code
+<existing code to use as patterns, with file paths and line ranges>
+<e.g., "Validation pattern: src/validators/email.c lines 40-65">
+
+## Key Files
+<files that will be created or modified, with brief notes on what changes>
+
+## Design Docs
+<list relevant docs to read before starting>
+
+## Constraints
+<project rules that affect this work>
 
 ## Status
 <current state -- what's done, what's next>
-
-## Context
-<relevant design docs, key files, decisions made>
 ```
+
+**Why this matters**: A Claude instance opening a worktree for the first time reads TASK.md and should immediately know what to build and how. If the spec is vague, the instance will explore the codebase, form its own plan, and may diverge from decisions already made in planning sessions. Front-load the specifics.
 
 ## Lifecycle
 
